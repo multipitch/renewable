@@ -49,7 +49,7 @@ def central_angle(coord1, coord2):
 loc_loc_angle = np.array([[central_angle(i, j) for j in locs] for i in locs])
 loc_port_angle = np.array([[central_angle(i, j) for j in ports] for i in locs])
 
-# Evaluate costs and identify minimum
+# Evaluate costs
 # rawcosts is a 1D array with a value for each location
 # finishedcosts is a 2D array with a value for each location x port combination
 # totalcosts is a 2D array with a value for each location x port combination
