@@ -63,7 +63,7 @@ print 'Optimum Locations:'
 print 'Plant:\t%.2f° N, %.2f° W' % (locs[optimum[0]][0], locs[optimum[0]][1])
 print 'Port:\t%.2f° N, %.2f° W' % (ports[optimum[1]][0], ports[optimum[1]][1])
 
-# Test getCentralAngle function:
+# Test central_angle function:
 # Distance from London to New York should be approx 5570 km
 #earth_mean_radius = 6371 # km
 #london = np.array([51.5072, 0.1275])
