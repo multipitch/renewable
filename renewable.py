@@ -27,27 +27,27 @@ locs = np.array(conn.execute('SELECT * FROM location').fetchall())
 ports = np.array(conn.execute('SELECT * FROM ports').fetchall())
 conn.close()
 
-def central_angle(coord1, coord2):
+def central_angle(coords1, coords2):
     """Get central angle between two points on the surface of a sphere
     
     Keyword arguments:
-    coord1 (numpy.array): first two columns are lat, long in degrees
-    coord2 (numpy.array): first two columns are lat, long in degrees
+    coords1 (numpy.array): two columns are lat, long in radians
+    coords2 (numpy.array): two columns are lat, long in radians
            
     Returns:
-    float: central angle in radians
+    numpy.array: central angles in radians
     """
-    phi1 = coord1[0] * np.pi / 180.0  # lat1 in radians
-    phi2 = coord2[0] * np.pi / 180.0  # lat2 in radians
-    dphi = phi2 - phi1                # lat difference, in radians
-    dtheta = (coord2[1] - coord1[1]) * np.pi / 180.0  # long diff, in radians
+    dphi = coords2[:, 0] - coords1[:,0][:, np.newaxis]
+    dtheta = coords2[:, 1] - coords1[:, 1][:, np.newaxis]
     a = (np.sin(dphi / 2)) ** 2 + \
-        np.cos(phi1) * np.cos(phi2) * (np.sin(dtheta / 2)) ** 2
-    return 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
+        np.cos(coords1[:,0][:, np.newaxis]) * np.cos(coords2[:,0]) * \
+        (np.sin(dtheta / 2)) ** 2
+    return  2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
 
-# Get arrays of location-location and location-port angles
-loc_loc_angle = np.array([[central_angle(i, j) for j in locs] for i in locs])
-loc_port_angle = np.array([[central_angle(i, j) for j in ports] for i in locs])
+locs_r = locs[:, :2] * np.pi / 180.0
+ports_r = ports * np.pi / 180.0
+loc_loc_angle = central_angle(locs_r, locs_r)
+loc_port_angle = central_angle(locs_r, ports_r)
 
 # Evaluate costs
 # rawcosts is a 1D array with a value for each location
@@ -62,11 +62,3 @@ optimum = np.unravel_index(total_costs.argmin(), total_costs.shape)
 print 'Optimum Locations:'
 print 'Plant:\t%.2f° N, %.2f° W' % (locs[optimum[0]][0], locs[optimum[0]][1])
 print 'Port:\t%.2f° N, %.2f° W' % (ports[optimum[1]][0], ports[optimum[1]][1])
-
-# Test central_angle function:
-# Distance from London to New York should be approx 5570 km
-#earth_mean_radius = 6371 # km
-#london = np.array([51.5072, 0.1275])
-#new_york = np.array([40.7127, 74.0059])
-#test_dist = earth_mean_radius * central_angle(london, new_york)
-#print test_dist
